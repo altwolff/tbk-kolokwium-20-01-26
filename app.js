@@ -1,10 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const Transaction = require('./models/Transaction');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 app.use(express.json());
+app.use('/api/maintenance', transactionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Połączono z MongoDB'))
