@@ -1,0 +1,1 @@
+mongoimport --db kolokwium --collection transactions --file transactions.json --jsonArray
