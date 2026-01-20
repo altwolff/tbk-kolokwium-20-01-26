@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const { User } = require('../models/User');
 
 exports.fixDates = async (req, res) => {
     try {
@@ -33,8 +34,8 @@ exports.fixDates = async (req, res) => {
 exports.getRevenueReport = async (req, res) => {
     try {
         const report = await Transaction.aggregate([
-            { 
-                $match: { status: "COMPLETED" } 
+            {
+                $match: { status: "COMPLETED" }
             },
             {
                 $group: {
@@ -43,8 +44,8 @@ exports.getRevenueReport = async (req, res) => {
                     transactionCount: { $sum: 1 }
                 }
             },
-            { 
-                $sort: { totalRevenue: -1 } 
+            {
+                $sort: { totalRevenue: -1 }
             }
         ]);
 
@@ -58,5 +59,28 @@ exports.getRevenueReport = async (req, res) => {
             status: "error",
             message: err.message
         });
+    }
+};
+
+exports.getUserDetails = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "Użytkownik nie istnieje w bazie SQL" });
+        }
+
+        const history = await Transaction.find({ userId: Number(userId) })
+            .sort({ date: -1 })
+            .limit(5);
+
+        res.status(200).json({
+            user: user,
+            history: history
+        });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };
